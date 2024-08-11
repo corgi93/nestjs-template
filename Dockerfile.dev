@@ -1,0 +1,18 @@
+FROM node:18-alpine 
+
+WORKDIR /app
+
+COPY package.json yarn.lock ./
+
+RUN yarn install
+
+COPY . .
+
+# RUN: yarn build
+RUN yarn build
+
+# 소스 번들링 이후에 작성한다.
+# prisma 데이터 베이스 client 코드 생성
+RUN yarn prisma:generate
+
+CMD ["yarn" , "start"]

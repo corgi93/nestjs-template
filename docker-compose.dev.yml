@@ -1,0 +1,37 @@
+version: '3'
+services:
+  backend:
+    build: 
+      dockerfile: Dockerfile.dev
+      context: ./
+    env_file:
+      - ./.env
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    depends_on:
+      - postgres
+    ports:
+      - "3000:3000"
+    
+  postgres:
+    # 사용할 docker 이미지 정의 (postgres 이미지의 13버전의 linux기반 경량 postgres 이미지)
+    build: ./postgresql
+    restart: unless-stopped
+    # 초기화 중에 컨테이너에 전달되는 환경 변수를 지정 (컨테이너가 사용할 사용자이름, 비밀번호 등)
+    env_file:
+      - ./postgresql/.env
+    # 호스트 파일 시스템에 데이터를 유지하는 데 사용
+    volumes:
+      - ./data:/var/lib/postgresql/data
+      - ./logs:/var/log/postgresql
+      - ./postgresql/postgresql.conf:/etc/postgresql/postgresql.conf
+      - ./postgresql/pg_hba.conf:/etc/postgresql/pg_hba.conf
+    ports: 
+      - '5432:5432'
+      
+volumes:
+  data:
+    driver: local
+  logs:
+    driver: local
